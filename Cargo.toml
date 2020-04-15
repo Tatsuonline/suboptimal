@@ -9,3 +9,4 @@ edition = "2018"
 [dependencies]
 lapp = "0.4.0"
 md5 = "0.7.0"
+reqwest = "0.10.4"
