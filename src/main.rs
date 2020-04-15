@@ -24,7 +24,7 @@ Downloads the subtitles for supplied video.
     let file = args.get_string("file");
     
     let hash = hash_brown(file); // Get the hash of the video.
-    
+    check_subdb(hash);
 }
 
 fn hash_brown(file: String) -> md5::Digest {
@@ -49,7 +49,7 @@ fn hash_brown(file: String) -> md5::Digest {
 
 fn check_subdb(hash: md5::Digest) -> () { 
 
-    let hash_string = hash.to_string(); // TODO: Fix the string coversion.
+    let hash_string = format!("{:x}", hash); // String coversion.
     let uri_builder = format!("http://sandbox.thesubdb.com/?action=download&hash={}&language=pt,en", hash_string); // For testing.
 
     println!("URI: {}", uri_builder);
@@ -57,7 +57,6 @@ fn check_subdb(hash: md5::Digest) -> () {
     send_request(uri_builder);
 }   
     
-
 fn send_request(uri: String) -> io::Result<()> {
 
     let client = reqwest::Client::new();
