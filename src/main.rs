@@ -6,7 +6,6 @@ use std::io::prelude::*;
 use std::fs::File;
 use std::fs;
 use std::io::SeekFrom;
-use std::string::ToString;
 
 fn main() {
 
@@ -50,8 +49,8 @@ fn hash_brown(file: String) -> md5::Digest {
 fn check_subdb(hash: md5::Digest) -> () { 
 
     let hash_string = format!("{:x}", hash); // String coversion.
-    let uri_builder = format!("http://sandbox.thesubdb.com/?action=download&hash={}&language=pt,en", hash_string); // For testing.
-
+    //let uri_builder = format!("http://sandbox.thesubdb.com/?action=download&hash={}&language=pt,en", hash_string); // For testing.
+    let uri_builder = format!("http://api.thesubdb.com/?action=download&hash={}&language=pt,en", hash_string);
     println!("URI: {}", uri_builder);
 
     send_request(uri_builder);
@@ -63,6 +62,14 @@ fn send_request(uri: String) -> io::Result<()> {
     let res = client.get(&uri)
 	.header("User-Agent", "SubDB/1.0 (suboptimal/0.1; https://github.com/Tatsuonline/suboptimal.git)")
 	.send();
+
+    if res.status().is_success() {
+	println!("Success!");
+    } else if res.status().is_server_error() {
+	println!("Server error!");
+    } else {
+	println!("Something else happened. Status: {:?}", res.status());
+}
 
     Ok(())
 }
