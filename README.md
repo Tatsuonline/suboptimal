@@ -1,17 +1,17 @@
 
 # Suboptimal: The Optimal Subtitle Finder
 
-1.  [Installation](#org2f72563)
-2.  [Documentation](#orga11e821)
+1.  [Installation](#orgbacbada)
+2.  [Documentation](#org29f2f62)
 
 ---
 
-Suboptimal is a minimalistic command line interface (CLI) subtitle finder for any video, movie or TV show you have! If the subtitles exist on a publically available database online, suboptimal will find and download it for you.
+Suboptimal is a minimalistic command line interface (CLI) subtitle finder written in Rust. It works for any video, movie or TV show you have! If the subtitles exist on a publically available database online, suboptimal will find and download it for you.
 
 Currently, suboptimal uses the SubDB API to pull subtitles, with more APIs to added soon.
 
 
-<a id="org2f72563"></a>
+<a id="orgbacbada"></a>
 
 # Installation
 
@@ -29,15 +29,15 @@ Run suboptimal:
     ./suboptimal <file> <flags>
 
 
-<a id="orga11e821"></a>
+<a id="org29f2f62"></a>
 
 # Documentation
 
 The following flags can be passed to suboptimal.
 
 Downloads the subtitles for supplied video.
-  -h, &#x2013;help
-  -v, &#x2013;verbose
-  -l, &#x2013;language (default en)
+  -h, --help
+  -v, --verbose
+  -l, --language (default en)
   <file> (string) input video file name
 

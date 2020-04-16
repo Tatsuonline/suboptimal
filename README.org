@@ -3,7 +3,7 @@
 #+EMAIL: mail@alexanderphillips.net
 -----
 
-Suboptimal is a minimalistic command line interface (CLI) subtitle finder for any video, movie or TV show you have! If the subtitles exist on a publically available database online, suboptimal will find and download it for you.
+Suboptimal is a minimalistic command line interface (CLI) subtitle finder written in Rust. It works for any video, movie or TV show you have! If the subtitles exist on a publically available database online, suboptimal will find and download it for you.
 
 Currently, suboptimal uses the SubDB API to pull subtitles, with more APIs to added soon.
 
