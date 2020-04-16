@@ -3,6 +3,37 @@
 #+EMAIL: mail@alexanderphillips.net
 -----
 
-Suboptimal is the optimal subtitle finder for any video you have! If the subtitles exist on a publically available database online, suboptimal will find and download it for you.
+Suboptimal is a minimalistic command line interface (CLI) subtitle finder for any video, movie or TV show you have! If the subtitles exist on a publically available database online, suboptimal will find and download it for you.
 
-Note: This project is still a work in progress.
+Currently, suboptimal uses the SubDB API to pull subtitles, with more APIs to added soon.
+
+* Installation
+
+Clone this repository:
+
+#+BEGIN_SRC bash
+git clone https://github.com/Tatsuonline/suboptimal.git
+#+END_SRC
+
+Build the release:
+
+#+BEGIN_SRC bash
+cargo build --release
+#+END_SRC
+
+Run suboptimal:
+
+#+BEGIN_SRC bash
+cd target/release
+./suboptimal <file> <flags>
+#+END_SRC
+
+* Documentation
+
+The following flags can be passed to suboptimal.
+
+Downloads the subtitles for supplied video.
+  -h, --help
+  -v, --verbose
+  -l, --language (default en)
+  <file> (string) input video file name
