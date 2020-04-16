@@ -1,11 +1,13 @@
 extern crate lapp;
 extern crate md5;
 extern crate reqwest;
-use std::io;
 use std::io::prelude::*;
 use std::fs::File;
 use std::fs;
 use std::io::SeekFrom;
+use std::io::Read;
+use reqwest::StatusCode;
+use std::collections::HashMap;
 
 fn main() {
 
@@ -41,35 +43,42 @@ fn hash_brown(file: String) -> md5::Digest {
     
     let digest = md5::compute(&mut first_buffer);
 
-    println!("Computed hash: {:x}", digest);
-
     digest
 }
 
-fn check_subdb(hash: md5::Digest) -> () { 
+#[tokio::main]
+async fn check_subdb(hash: md5::Digest) -> Result<(), Box<dyn std::error::Error>> {
 
     let hash_string = format!("{:x}", hash); // String coversion.
-    //let uri_builder = format!("http://sandbox.thesubdb.com/?action=download&hash={}&language=pt,en", hash_string); // For testing.
-    let uri_builder = format!("http://api.thesubdb.com/?action=download&hash={}&language=pt,en", hash_string);
-    println!("URI: {}", uri_builder);
-
-    send_request(uri_builder);
-}   
+    let uri = format!("http://api.thesubdb.com/?action=download&hash={}&language=pt,en", hash_string);
     
-fn send_request(uri: String) -> io::Result<()> {
+    let client = reqwest::Client::builder()
+	.user_agent("SubDB/1.0 (suboptimal/0.1; https://github.com/Tatsuonline/suboptimal.git)")
+	.build()?;
+    
+    let res = client.get(&uri).send().await?;
 
-    let client = reqwest::Client::new();
-    let res = client.get(&uri)
-	.header("User-Agent", "SubDB/1.0 (suboptimal/0.1; https://github.com/Tatsuonline/suboptimal.git)")
-	.send();
+    println!("\n\n");
+    
+    match res.status() {
+	StatusCode::OK => {
+	    println!("200: The subtitles exist!");
 
-    if res.status().is_success() {
-	println!("Success!");
-    } else if res.status().is_server_error() {
-	println!("Server error!");
-    } else {
-	println!("Something else happened. Status: {:?}", res.status());
-}
+	    match &res.headers().get("content-disposition") {
+		Some(srt_file) => {
+		    println!("\nFile: {:#?}\n", srt_file);
+
+		    // TODO: Download the subtitles.
+		},
+		_ => println!("Somehow, you managed to screw this up."),
+	    };
+	},
+	StatusCode::NOT_FOUND => println!("404: The subtitles unfortunately don't exist."),
+	StatusCode::BAD_REQUEST => println!("400: Ya done goofed!"),
+	_ => println!("Something else is messed up."),
+    }
+
+    println!("\nFull response: {:#?}\n", res);
 
     Ok(())
 }
