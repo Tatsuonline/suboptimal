@@ -7,7 +7,7 @@ use std::fs;
 use std::io::SeekFrom;
 use std::io::Read;
 use reqwest::StatusCode;
-use std::collections::HashMap;
+use std::path::{Path, PathBuf};
 
 fn main() {
 
@@ -23,14 +23,16 @@ Downloads the subtitles for supplied video.
     let verbose = args.get_bool("verbose");
     let language = args.get_string("language");
     let file = args.get_string("file");
+
+    let file_path = Path::new(&file);
+    let metadata = fs::metadata(&file).unwrap();
     
-    let hash = hash_brown(file); // Get the hash of the video.
-    check_subdb(hash);
+    let hash = hash_brown(&file, metadata); // Get the hash of the video.
+    check_subdb(hash, &file_path, language);
 }
 
-fn hash_brown(file: String) -> md5::Digest {
+fn hash_brown(file: &String, metadata: std::fs::Metadata) -> md5::Digest {
 
-    let metadata = fs::metadata(&file).unwrap();
     let mut video_file = File::open(file).unwrap();
     let mut first_buffer = vec![0; 65536]; // 64 x 1024 for 64kb.
     let mut second_buffer = vec![0; 65536]; // 64 x 1024 for 64kb.
@@ -47,38 +49,39 @@ fn hash_brown(file: String) -> md5::Digest {
 }
 
 #[tokio::main]
-async fn check_subdb(hash: md5::Digest) -> Result<(), Box<dyn std::error::Error>> {
+async fn check_subdb(hash: md5::Digest, file_path: &std::path::Path, language: String) -> Result<(), Box<dyn std::error::Error>> {
 
     let hash_string = format!("{:x}", hash); // String coversion.
-    let uri = format!("http://api.thesubdb.com/?action=download&hash={}&language=pt,en", hash_string);
+    let uri = format!("http://api.thesubdb.com/?action=download&hash={}&language={},en", hash_string, language);
     
     let client = reqwest::Client::builder()
 	.user_agent("SubDB/1.0 (suboptimal/0.1; https://github.com/Tatsuonline/suboptimal.git)")
 	.build()?;
     
-    let res = client.get(&uri).send().await?;
+    let mut res = client.get(&uri).send().await?;
 
-    println!("\n\n");
-    
     match res.status() {
 	StatusCode::OK => {
 	    println!("200: The subtitles exist!");
 
-	    match &res.headers().get("content-disposition") {
-		Some(srt_file) => {
-		    println!("\nFile: {:#?}\n", srt_file);
+	    let subtitles_file_name = file_path.file_stem().unwrap();
+	    let mut subtitles_file_format = PathBuf::from(subtitles_file_name);
+	    subtitles_file_format.set_extension("srt");
+	    let subtitles_file = file_path.parent().unwrap().join(subtitles_file_format);
 
-		    // TODO: Download the subtitles.
-		},
-		_ => println!("Somehow, you managed to screw this up."),
-	    };
+	    let mut file = File::create(&subtitles_file).unwrap();
+	    println!("Downloading to {:#?}...", subtitles_file);
+	    
+	    while let Some(chunk) = res.chunk().await.unwrap() {
+	    	file.write_all(&chunk);
+	    }
+
+	    println!("Download complete.");
 	},
 	StatusCode::NOT_FOUND => println!("404: The subtitles unfortunately don't exist."),
 	StatusCode::BAD_REQUEST => println!("400: Ya done goofed!"),
 	_ => println!("Something else is messed up."),
     }
-
-    println!("\nFull response: {:#?}\n", res);
 
     Ok(())
 }
