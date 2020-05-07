@@ -9,6 +9,32 @@ Currently, suboptimal uses the SubDB API to pull subtitles, with more APIs to ad
 
 * Installation
 
+There are three different options here: installation through the package manager, manual installation of the binary or manual installation after building it from source.
+
+** Package Manager
+
+This is the simplest option if you use the pacman package manager. You can navigate to the [[https://github.com/Tatsuonline/suboptimal/releases][releases]] tab and download the package named suboptimal-1.0-1-x86_64.pkg.tar.xz.
+
+Run the installation:
+
+#+BEGIN_SRC bash
+pacman -U suboptimal-1.0-1-x86_64.pkg.tar.xz
+#+END_SRC
+
+I will try to add this package into AUR later to make it even easier.
+
+** Manual Installation Of The Binary
+
+Navigate to the [[https://github.com/Tatsuonline/suboptimal/releases][releases]] tab and download the package named suboptimal.
+
+Manually install it:
+
+#+BEGIN_SRC bash
+mv suboptimal /usr/bin/
+#+END_SRC
+
+** Manual Installation After Building From Source
+
 Clone this repository:
 
 #+BEGIN_SRC bash
@@ -21,18 +47,23 @@ Build the release:
 cargo build --release
 #+END_SRC
 
-Run suboptimal:
+Install it:
 
 #+BEGIN_SRC bash
 cd target/release
-./suboptimal <file> <flags>
+mv suboptimal /usr/bin/
 #+END_SRC
 
 * Documentation
 
+The usage is:
+
+#+BEGIN_SRC bash
+suboptimal <file> <flags>
+#+END_SRC
+
 The following flags can be passed to suboptimal.
 
-Downloads the subtitles for supplied video.
   -h, --help
   -v, --verbose
   -l, --language (default en)
