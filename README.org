@@ -55,15 +55,19 @@ cargo install --path .
 
 * Documentation
 
-The usage is:
+suboptimal 0.1.0
+Finds and downloads subtitles for videos.
 
-#+BEGIN_SRC bash
-suboptimal <file> <flags>
-#+END_SRC
+USAGE:
+    suboptimal [FLAGS] [OPTIONS] <file>
 
-The following flags can be passed to suboptimal.
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+    -v, --verbose    Prints details as the program runs
 
-  -h, --help
-  -v, --verbose
-  -l, --language (default en)
-  <file> (string) input video file name
+OPTIONS:
+    -l, --language <language>    Specifies the language of the subtitles to download [default: en]
+
+ARGS:
+    <file>    The file name for which to get subtitles for
