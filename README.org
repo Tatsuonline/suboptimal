@@ -25,7 +25,7 @@ I will try to add this package into AUR later to make it even easier.
 
 ** Manual Installation Of The Binary
 
-Navigate to the [[https://github.com/Tatsuonline/suboptimal/releases][releases]] tab and download the package named suboptimal.
+Navigate to the [[https://github.com/Tatsuonline/suboptimal/releases][releases]] tab and download the binary named suboptimal.
 
 Manually install it:
 
@@ -50,8 +50,7 @@ cargo build --release
 Install it:
 
 #+BEGIN_SRC bash
-cd target/release
-mv suboptimal /usr/bin/
+cargo install --path .
 #+END_SRC
 
 * Documentation
