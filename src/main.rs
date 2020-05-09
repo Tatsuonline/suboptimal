@@ -1,6 +1,6 @@
-extern crate lapp;
 extern crate md5;
 extern crate reqwest;
+use structopt::StructOpt;
 use std::io::prelude::*;
 use std::fs::File;
 use std::fs;
@@ -9,26 +9,33 @@ use std::io::Read;
 use reqwest::StatusCode;
 use std::path::{Path, PathBuf};
 
+#[derive(Debug, StructOpt)]
+#[structopt(name = "suboptimal", about = "Finds and downloads subtitles for videos.")]
+struct Opt {
+
+    // Add the verbose flag to print details as the program runs.
+    #[structopt(short, long, help = "Prints details as the program runs")]
+    verbose: bool,
+
+    // Add the language flag to specify the language of the subtitles to download.
+    #[structopt(short, long, default_value = "en", help = "Specifies the language of the subtitles to download")]
+    language: String,
+
+    // Add the file name input for which to get subtitles for.
+    #[structopt(help = "The file name for which to get subtitles for")]
+    file: String,
+
+}
+
 fn main() {
 
-    let args = lapp::parse_args("
-Downloads the subtitles for supplied video.
-  -h, --help
-  -v, --verbose
-  -l, --language (default en)
-  <file> (string) input video file name
-	");
-
-    let help = args.get_bool("help");
-    let verbose = args.get_bool("verbose");
-    let language = args.get_string("language");
-    let file = args.get_string("file");
-
-    let file_path = Path::new(&file);
-    let metadata = fs::metadata(&file).unwrap(); // Pull metadata of the file to determine the size.
+    let opt = Opt::from_args();
+ 
+    let file_path = Path::new(&opt.file);
+    let metadata = fs::metadata(&opt.file).unwrap(); // Pull metadata of the file to determine the size.
     
-    let hash = hash_brown(&file, metadata, verbose); // Get the hash of the video.
-    check_subdb(hash, &file_path, language, verbose); // Check if the subtitles exist on SubDB.
+    let hash = hash_brown(&opt.file, metadata, opt.verbose); // Get the hash of the video.
+    check_subdb(hash, &file_path, opt.language, opt.verbose); // Check if the subtitles exist on SubDB.
 }
 
 fn verbosity(verbose: bool, information: &str) -> () {
