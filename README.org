@@ -71,5 +71,5 @@ OPTIONS:
     -l, --language <language>    Specifies the language of the subtitles to download [default: en]
 
 ARGS:
-    <file>    The file name for which to get subtitles for
+    <file>    The path to the file or directory of files for which to get subtitles for
 #+END_SRC

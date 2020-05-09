@@ -1,5 +1,6 @@
 extern crate md5;
 extern crate reqwest;
+extern crate walkdir;
 use structopt::StructOpt;
 use std::io::prelude::*;
 use std::fs::File;
@@ -8,6 +9,7 @@ use std::io::SeekFrom;
 use std::io::Read;
 use reqwest::StatusCode;
 use std::path::{Path, PathBuf};
+use walkdir::WalkDir;
 
 #[derive(Debug, StructOpt)]
 #[structopt(name = "suboptimal", about = "Finds and downloads subtitles for videos.")]
@@ -22,7 +24,7 @@ struct Opt {
     language: String,
 
     // Add the file name input for which to get subtitles for.
-    #[structopt(help = "The file name for which to get subtitles for")]
+    #[structopt(help = "The path to the file or directory of files for which to get subtitles for")]
     file: String,
 
 }
@@ -31,11 +33,9 @@ fn main() {
 
     let opt = Opt::from_args();
  
-    let file_path = Path::new(&opt.file);
     let metadata = fs::metadata(&opt.file).unwrap(); // Pull metadata of the file to determine the size.
-    
-    let hash = hash_brown(&opt.file, metadata, opt.verbose); // Get the hash of the video.
-    check_subdb(hash, &file_path, opt.language, opt.verbose); // Check if the subtitles exist on SubDB.
+
+    recursive_check(&opt.file, metadata, opt.verbose, &opt.language); // Check recursively through a folder until video files are found.
 }
 
 fn verbosity(verbose: bool, information: &str) -> () {
@@ -43,6 +43,36 @@ fn verbosity(verbose: bool, information: &str) -> () {
     if verbose {
 	println!("+ verbose: {}", information);
     }
+}
+
+fn database_file_search(file: &String, metadata: std::fs::Metadata, verbose: bool, language: &String) -> () {
+
+    let file_path = Path::new(file);
+    let hash = hash_brown(&file, metadata, verbose); // Get the hash of the video.
+    check_subdb(hash, &file_path, language, verbose); // Check if the subtitles exist on SubDB.
+
+}
+
+fn recursive_check(file: &String, metadata: std::fs::Metadata, verbose: bool, language: &String) -> () {
+
+    // In case the argument is a file.
+    if metadata.is_file() {
+	database_file_search(file, metadata, verbose, language);
+    } else if metadata.is_dir() { 
+
+	// If the argument is a directory, recursively go through it and process only files.
+	for entry in WalkDir::new(file) {
+	    
+	    let entry = entry.unwrap();
+	    let entry_path = &entry.path().display().to_string();
+	    let new_metadata = fs::metadata(&entry.path().display().to_string()).unwrap();
+
+	    if new_metadata.is_file() {
+		database_file_search(entry_path, new_metadata, verbose, language);
+	    }	
+	}
+    }
+
 }
 
 fn hash_brown(file: &String, metadata: std::fs::Metadata, verbose: bool) -> md5::Digest {
@@ -67,7 +97,7 @@ fn hash_brown(file: &String, metadata: std::fs::Metadata, verbose: bool) -> md5:
 }
 
 #[tokio::main]
-async fn check_subdb(hash: md5::Digest, file_path: &std::path::Path, language: String, verbose: bool) -> Result<(), Box<dyn std::error::Error>> {
+async fn check_subdb(hash: md5::Digest, file_path: &std::path::Path, language: &String, verbose: bool) -> Result<(), Box<dyn std::error::Error>> {
 
     let hash_string = format!("{:x}", hash); // String coversion of the hash.
     let uri = format!("http://api.thesubdb.com/?action=download&hash={}&language={},en", hash_string, language);

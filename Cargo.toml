@@ -8,6 +8,7 @@ edition = "2018"
 
 [dependencies]
 structopt = "0.3"
+walkdir = "2.3.1"
 md5 = "0.7.0"
 reqwest = { version = "0.10", features = ["json"] }
 tokio = { version = "0.2", features = ["full"] }
