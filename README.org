@@ -55,6 +55,7 @@ cargo install --path .
 
 * Documentation
 
+#+BEGIN_SRC bash
 suboptimal 0.1.0
 Finds and downloads subtitles for videos.
 
@@ -71,3 +72,4 @@ OPTIONS:
 
 ARGS:
     <file>    The file name for which to get subtitles for
+#+END_SRC
